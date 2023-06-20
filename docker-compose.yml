@@ -1,0 +1,24 @@
+services:
+  database:
+    image: postgres
+    environment:
+      POSTGRES_USER: "root"
+      POSTGRES_PASSWORD: "pass"
+      POSTGRES_DB: "my_db"
+    volumes:
+      - "./init.sql:/docker-entrypoint-initdb.d/init.sql"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  python:
+    build:
+      context: .
+      dockerfile: python.Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
